@@ -17,6 +17,13 @@ const Index = () => {
     level: 2,
     completedReminders: 15,
     missedReminders: 2,
+    dailyGoal: 120, // 2 hours in minutes
+    weeklyGoal: 840, // 14 hours in minutes
+    dailyStandMinutes: 85,
+    weeklyStandMinutes: 420,
+    longestStreak: 7,
+    unlockedAchievements: ['first-stretch', 'streak-master-3'],
+    streakBonusMultiplier: 1.0,
   });
   const [settings, setSettings] = useState({
     reminderInterval: 30,

@@ -1,5 +1,5 @@
 import { UserStats } from '@/types/character';
-import { Flame, Trophy, Target, Star } from 'lucide-react';
+import { Flame, Trophy, Target, Star, TrendingUp } from 'lucide-react';
 
 interface StatsDisplayProps {
   stats: UserStats;
@@ -7,6 +7,7 @@ interface StatsDisplayProps {
 
 export function StatsDisplay({ stats }: StatsDisplayProps) {
   const progressToNextLevel = ((stats.totalXP % 100) / 100) * 100;
+  const streakBonus = Math.floor(stats.streakBonusMultiplier * 100 - 100);
 
   return (
     <div className="space-y-4">
@@ -15,6 +16,9 @@ export function StatsDisplay({ stats }: StatsDisplayProps) {
         <div className="flex items-center space-x-2 badge-streak animate-pulse-glow">
           <Flame className="w-4 h-4" />
           <span>{stats.currentStreak} day streak!</span>
+          {streakBonus > 0 && (
+            <span className="text-xs text-warning">+{streakBonus}% XP</span>
+          )}
         </div>
         <div className="flex items-center space-x-2 badge-xp">
           <Star className="w-4 h-4" />
@@ -49,6 +53,16 @@ export function StatsDisplay({ stats }: StatsDisplayProps) {
           <div className="text-sm text-muted-foreground">Total XP</div>
         </div>
       </div>
+
+      {/* Best Streak Badge */}
+      {stats.longestStreak > stats.currentStreak && (
+        <div className="flex items-center justify-center space-x-2 bg-gradient-to-r from-warning/10 to-success/10 rounded-2xl p-3 border border-warning/20">
+          <TrendingUp className="w-4 h-4 text-warning" />
+          <span className="text-sm text-muted-foreground">
+            Best streak: {stats.longestStreak} days
+          </span>
+        </div>
+      )}
     </div>
   );
 }

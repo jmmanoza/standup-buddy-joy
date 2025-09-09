@@ -3,6 +3,8 @@ import { Character, UserStats } from '@/types/character';
 import { characters, motivationalMessages } from '@/data/characters';
 import { TimerDisplay } from '@/components/TimerDisplay';
 import { StatsDisplay } from '@/components/StatsDisplay';
+import { ProgressDisplay } from '@/components/ProgressDisplay';
+import { CharacterEvolution } from '@/components/CharacterEvolution';
 import { CharacterSelector } from '@/components/CharacterSelector';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,26 +20,57 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
   const { toast } = useToast();
 
   const handleTimerComplete = () => {
-    const xpGained = 10;
+    const baseXP = 10;
+    const streakMultiplier = Math.max(1.0, stats.streakBonusMultiplier);
+    const xpGained = Math.floor(baseXP * streakMultiplier);
+    const standMinutes = 15; // Estimated standing time per reminder
+    
+    const newStreak = stats.currentStreak + 1;
+    const newTotalXP = stats.totalXP + xpGained;
+    const newLevel = Math.floor(newTotalXP / 100) + 1;
+    const newLongestStreak = Math.max(stats.longestStreak, newStreak);
+    
+    // Calculate streak bonus (increases by 5% every 5 days, max 50%)
+    const newStreakBonus = Math.min(1.5, 1.0 + (Math.floor(newStreak / 5) * 0.05));
+    
     const newStats = {
       ...stats,
-      totalXP: stats.totalXP + xpGained,
+      totalXP: newTotalXP,
       completedReminders: stats.completedReminders + 1,
-      currentStreak: stats.currentStreak + 1,
-      level: Math.floor((stats.totalXP + xpGained) / 100) + 1,
+      currentStreak: newStreak,
+      longestStreak: newLongestStreak,
+      level: newLevel,
+      dailyStandMinutes: stats.dailyStandMinutes + standMinutes,
+      weeklyStandMinutes: stats.weeklyStandMinutes + standMinutes,
+      streakBonusMultiplier: newStreakBonus,
     };
     
     onUpdateStats(newStats);
     
-    const successMessage = motivationalMessages.success[
-      Math.floor(Math.random() * motivationalMessages.success.length)
-    ];
+    // Check for level up
+    const leveledUp = newLevel > stats.level;
+    if (leveledUp) {
+      // Check for character evolution
+      const evolution = selectedCharacter.evolutions?.find(evo => evo.level === newLevel);
+      
+      toast({
+        title: leveledUp ? "🎉 LEVEL UP!" : "Great job! 🎉",
+        description: evolution 
+          ? evolution.unlockMessage 
+          : `${motivationalMessages.success[Math.floor(Math.random() * motivationalMessages.success.length)]} You earned ${xpGained} XP!`,
+        duration: 5000,
+      });
+    } else {
+      const successMessage = motivationalMessages.success[
+        Math.floor(Math.random() * motivationalMessages.success.length)
+      ];
 
-    toast({
-      title: "Great job! 🎉",
-      description: `${successMessage} You earned ${xpGained} XP!`,
-      duration: 4000,
-    });
+      toast({
+        title: "Great job! 🎉",
+        description: `${successMessage} You earned ${xpGained} XP${streakMultiplier > 1 ? ` (${Math.floor((streakMultiplier - 1) * 100)}% streak bonus!)` : ''}!`,
+        duration: 4000,
+      });
+    }
   };
 
   const handleTimerStart = () => {
@@ -112,9 +145,22 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
           />
         </div>
 
+        {/* Progress Tracking */}
+        <div className="bg-card rounded-3xl p-6 shadow-card">
+          <ProgressDisplay stats={stats} />
+        </div>
+
         {/* Stats */}
         <div className="bg-card rounded-3xl p-6 shadow-card">
           <StatsDisplay stats={stats} />
+        </div>
+
+        {/* Character Evolution */}
+        <div className="bg-card rounded-3xl p-6 shadow-card">
+          <CharacterEvolution 
+            character={selectedCharacter} 
+            currentLevel={stats.level} 
+          />
         </div>
 
         {/* Quick Actions */}

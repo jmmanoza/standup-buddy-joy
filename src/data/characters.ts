@@ -15,6 +15,11 @@ export const characters: Character[] = [
       primary: 'hsl(142, 78%, 55%)',
       secondary: 'hsl(170, 78%, 55%)',
     },
+    evolutions: [
+      { level: 5, name: 'Super Stretchy', description: 'Now with extra bounce!', unlockMessage: 'Your blob learned to bounce higher! 🎉' },
+      { level: 10, name: 'Mega Stretchy', description: 'Master of all stretches!', unlockMessage: 'Your blob became a stretch master! 🏆' },
+      { level: 20, name: 'Ultra Stretchy', description: 'The ultimate stretching companion!', unlockMessage: 'Your blob reached ultimate form! ⭐' },
+    ],
   },
   {
     id: 'sleepy-cat',
@@ -26,6 +31,11 @@ export const characters: Character[] = [
       primary: 'hsl(25, 95%, 65%)',
       secondary: 'hsl(45, 95%, 65%)',
     },
+    evolutions: [
+      { level: 5, name: 'Alert Whiskers', description: 'More energetic and ready to move!', unlockMessage: 'Whiskers became more alert! 😺' },
+      { level: 10, name: 'Zen Master Whiskers', description: 'Perfectly balanced in rest and movement.', unlockMessage: 'Whiskers achieved zen mastery! 🧘‍♀️' },
+      { level: 20, name: 'Legendary Whiskers', description: 'The wise old cat of perfect posture.', unlockMessage: 'Whiskers became a legend! 👑' },
+    ],
   },
   {
     id: 'coffee-cup',
@@ -37,6 +47,11 @@ export const characters: Character[] = [
       primary: 'hsl(30, 85%, 45%)',
       secondary: 'hsl(25, 95%, 65%)',
     },
+    evolutions: [
+      { level: 5, name: 'Espresso Buzz', description: 'Double the energy, double the fun!', unlockMessage: 'Buzz got an energy upgrade! ⚡' },
+      { level: 10, name: 'Turbo Buzz', description: 'Maximum caffeine, maximum motivation!', unlockMessage: 'Buzz went into turbo mode! 🚀' },
+      { level: 20, name: 'Cosmic Buzz', description: 'Energy levels beyond imagination!', unlockMessage: 'Buzz reached cosmic power! ✨' },
+    ],
   },
   {
     id: 'plant-buddy',
@@ -48,6 +63,11 @@ export const characters: Character[] = [
       primary: 'hsl(120, 60%, 45%)',
       secondary: 'hsl(142, 78%, 55%)',
     },
+    evolutions: [
+      { level: 5, name: 'Growing Sprout', description: 'Taller and more vibrant than ever!', unlockMessage: 'Sprout grew bigger! 🌱' },
+      { level: 10, name: 'Blooming Sprout', description: 'Beautiful flowers showing your progress!', unlockMessage: 'Sprout started blooming! 🌸' },
+      { level: 20, name: 'Mighty Oak', description: 'A strong tree representing your dedication!', unlockMessage: 'Sprout became a mighty oak! 🌳' },
+    ],
   },
 ];
 

@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { Bell, Clock, Palette, Volume2, VolumeX, Smartphone } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface SettingsProps {
   settings: {
@@ -16,6 +16,8 @@ interface SettingsProps {
 }
 
 export function Settings({ settings, onUpdateSettings }: SettingsProps) {
+  const { theme, setTheme } = useTheme();
+  
   const updateSetting = (key: string, value: any) => {
     onUpdateSettings({
       ...settings,
@@ -135,8 +137,8 @@ export function Settings({ settings, onUpdateSettings }: SettingsProps) {
             <div className="space-y-3">
               <label className="text-foreground font-medium">Theme</label>
               <Select 
-                value={settings.theme} 
-                onValueChange={(value) => updateSetting('theme', value)}
+                value={theme} 
+                onValueChange={setTheme}
               >
                 <SelectTrigger className="bg-background border-border rounded-xl">
                   <SelectValue />

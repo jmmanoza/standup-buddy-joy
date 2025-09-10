@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Character, UserStats, Reminder } from '@/types/character';
 import { characters } from '@/data/characters';
-import { Home } from '@/pages/Home';
-import { Timeline } from '@/pages/Timeline';
-import { Achievements } from '@/pages/Achievements';
-import { Settings } from '@/pages/Settings';
+import { Home } from './Home';
+import { Timeline } from './Timeline';
+import { Achievements } from './Achievements';
+import { Settings } from './Settings';
 import { Navigation } from '@/components/Navigation';
+import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { useReminders } from '@/hooks/useReminders';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
+  const { toast } = useToast();
+  
   // State management
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedCharacter, setSelectedCharacter] = useState<Character>(characters[0]);
@@ -103,6 +109,19 @@ const Index = () => {
     localStorage.setItem('reminders', JSON.stringify(reminders));
   }, [reminders]);
 
+  // Helper function to add new reminder
+  const addReminder = (completed: boolean, message: string, xpEarned?: number) => {
+    const newReminder: Reminder = {
+      id: Date.now().toString(),
+      timestamp: new Date(),
+      completed,
+      character: selectedCharacter,
+      message,
+      xpEarned,
+    };
+    setReminders(prev => [newReminder, ...prev]);
+  };
+
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'home':
@@ -112,6 +131,8 @@ const Index = () => {
             onSelectCharacter={setSelectedCharacter}
             stats={stats}
             onUpdateStats={setStats}
+            onAddReminder={addReminder}
+            settings={settings}
           />
         );
       case 'timeline':
@@ -127,19 +148,36 @@ const Index = () => {
             onSelectCharacter={setSelectedCharacter}
             stats={stats}
             onUpdateStats={setStats}
+            onAddReminder={addReminder}
+            settings={settings}
           />
         );
     }
   };
 
+  const reminderSystem = useReminders({
+    settings,
+    onReminder: () => {
+      const reminderMessage = "Time for a healthy break! 🌟";
+      toast({
+        title: "Reminder! ⏰",
+        description: reminderMessage,
+        duration: 5000,
+      });
+    },
+  });
+
   return (
-    <div className="min-h-screen bg-gradient-bg-primary">
-      {renderCurrentPage()}
-      <Navigation 
-        currentPage={currentPage} 
-        onNavigate={setCurrentPage} 
-      />
-    </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-gradient-bg-primary">
+        {renderCurrentPage()}
+        <Navigation 
+          currentPage={currentPage} 
+          onNavigate={setCurrentPage} 
+        />
+        <Toaster />
+      </div>
+    </ThemeProvider>
   );
 };
 

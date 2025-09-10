@@ -13,9 +13,17 @@ interface HomeProps {
   onSelectCharacter: (character: Character) => void;
   stats: UserStats;
   onUpdateStats: (stats: UserStats) => void;
+  onAddReminder: (completed: boolean, message: string, xpEarned?: number) => void;
+  settings: {
+    reminderInterval: number;
+    soundEnabled: boolean;
+    volume: number;
+    notificationStyle: 'gentle' | 'energetic' | 'minimal';
+    theme: 'auto' | 'light' | 'dark';
+  };
 }
 
-export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStats }: HomeProps) {
+export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStats, onAddReminder, settings }: HomeProps) {
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const { toast } = useToast();
 
@@ -33,6 +41,21 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
     // Calculate streak bonus (increases by 5% every 5 days, max 50%)
     const newStreakBonus = Math.min(1.5, 1.0 + (Math.floor(newStreak / 5) * 0.05));
     
+    // Check for new achievements
+    const newAchievements = [...stats.unlockedAchievements];
+    if (newStreak >= 5 && !newAchievements.includes('streak-master-5')) {
+      newAchievements.push('streak-master-5');
+    }
+    if (newStreak >= 10 && !newAchievements.includes('streak-master-10')) {
+      newAchievements.push('streak-master-10');
+    }
+    if (newLevel >= 5 && !newAchievements.includes('level-5')) {
+      newAchievements.push('level-5');
+    }
+    if (stats.completedReminders + 1 >= 100 && !newAchievements.includes('century-club')) {
+      newAchievements.push('century-club');
+    }
+    
     const newStats = {
       ...stats,
       totalXP: newTotalXP,
@@ -43,9 +66,16 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
       dailyStandMinutes: stats.dailyStandMinutes + standMinutes,
       weeklyStandMinutes: stats.weeklyStandMinutes + standMinutes,
       streakBonusMultiplier: newStreakBonus,
+      unlockedAchievements: newAchievements,
     };
     
     onUpdateStats(newStats);
+    
+    // Add reminder to timeline
+    const successMessage = motivationalMessages.success[
+      Math.floor(Math.random() * motivationalMessages.success.length)
+    ];
+    onAddReminder(true, successMessage, xpGained);
     
     // Check for level up
     const leveledUp = newLevel > stats.level;
@@ -61,10 +91,6 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
         duration: 5000,
       });
     } else {
-      const successMessage = motivationalMessages.success[
-        Math.floor(Math.random() * motivationalMessages.success.length)
-      ];
-
       toast({
         title: "Great job! 🎉",
         description: `${successMessage} You earned ${xpGained} XP${streakMultiplier > 1 ? ` (${Math.floor((streakMultiplier - 1) * 100)}% streak bonus!)` : ''}!`,
@@ -82,6 +108,34 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
       title: "Timer started! ⏰",
       description: reminderMessage,
       duration: 3000,
+    });
+  };
+
+  const handleQuickStand = () => {
+    const xpGained = 5;
+    const newStats = {
+      ...stats,
+      totalXP: stats.totalXP + xpGained,
+      dailyStandMinutes: stats.dailyStandMinutes + 5,
+      weeklyStandMinutes: stats.weeklyStandMinutes + 5,
+    };
+    onUpdateStats(newStats);
+    
+    const quickMessage = "Quick stand completed! Every little bit helps! 💪";
+    onAddReminder(true, quickMessage, xpGained);
+    
+    toast({
+      title: "Quick Stand! 🧘‍♂️",
+      description: `${quickMessage} +${xpGained} XP!`,
+      duration: 3000,
+    });
+  };
+
+  const handleStretchGuide = () => {
+    toast({
+      title: "Stretch Guide 🤸‍♀️",
+      description: "Try these stretches: Neck rolls, shoulder shrugs, back twists, and leg stretches!",
+      duration: 6000,
     });
   };
 
@@ -139,7 +193,7 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
         {/* Timer */}
         <div className="bg-card rounded-3xl p-6 shadow-card">
           <TimerDisplay 
-            initialMinutes={30}
+            initialMinutes={settings.reminderInterval}
             onComplete={handleTimerComplete}
             onStart={handleTimerStart}
           />
@@ -165,10 +219,16 @@ export function Home({ selectedCharacter, onSelectCharacter, stats, onUpdateStat
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">
-          <button className="btn-secondary">
+          <button 
+            onClick={handleQuickStand}
+            className="btn-secondary"
+          >
             Quick Stand 🧘‍♂️
           </button>
-          <button className="btn-accent">
+          <button 
+            onClick={handleStretchGuide}
+            className="btn-accent"
+          >
             Stretch Guide 🤸‍♀️
           </button>
         </div>
